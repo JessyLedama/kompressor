@@ -11,11 +11,12 @@ class KompressorService
 {
     public function compress($uploadedFile)
     {
+        $startTime = microtime(true); // for tracking how long it takes to compress.
+
         $config = config('kompressor');
         $maxKB = $config['max_kb'];
 
         // Check for Imagick
-        // $driver = extension_loaded('imagick') ? 'imagick' : 'gd';
 
         if (extension_loaded('imagick')) {
             $driver = 'imagick';
@@ -41,9 +42,10 @@ class KompressorService
         $quality = 90;
         while (filesize($tempPath) > ($maxKB * 1024) && $quality > 40) {
             $image->save($tempPath, $quality);
-            $optimizer->optimize($tempPath);
             $quality -= 5;
         }
+
+        $optimizer->optimize($tempPath);
 
         $compressedName = "compressed_" . $originalName;
         $compressedPath = $config['compressed_path'] . '/' . $compressedName;
@@ -55,6 +57,10 @@ class KompressorService
         Storage::disk('public')->put($compressedPath, file_get_contents($tempPath));
 
         unlink($tempPath);
+
+        // Log elapsed time
+        $elapsed = microtime(true) - $startTime;
+        Log::info("Kompressor: Compression finished after {$elapsed} seconds.");
 
         return [
             'original' => $originalPath,
