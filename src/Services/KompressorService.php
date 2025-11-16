@@ -17,7 +17,6 @@ class KompressorService
         $maxKB = $config['max_kb'];
 
         // Check for Imagick
-
         if (extension_loaded('imagick')) {
             $driver = 'imagick';
             Log::info('Kompressor: Imagick is available. Using Imagick driver.');
@@ -36,14 +35,14 @@ class KompressorService
         $tempPath = storage_path("app/temp_" . $originalName);
         $image->save($tempPath, 90);
 
-        $optimizer = OptimizerChainFactory::create()->setTimeout(10);
-
         $quality = 90;
+        
         while (filesize($tempPath) > ($maxKB * 1024) && $quality > 40) {
             $image->save($tempPath, $quality);
             $quality -= 5;
         }
 
+        $optimizer = OptimizerChainFactory::create()->setTimeout(10);        
         $optimizer->optimize($tempPath);
 
         $compressedName = "compressed_" . $originalName;
