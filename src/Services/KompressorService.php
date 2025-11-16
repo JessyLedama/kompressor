@@ -37,7 +37,6 @@ class KompressorService
         $image->save($tempPath, 90);
 
         $optimizer = OptimizerChainFactory::create()->setTimeout(10);
-        $optimizer->optimize($tempPath);
 
         $quality = 90;
         while (filesize($tempPath) > ($maxKB * 1024) && $quality > 40) {
