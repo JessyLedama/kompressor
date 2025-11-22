@@ -2,7 +2,7 @@
 
 ### A lightweight Laravel image compression library
 
-Kompressor is a Laravel-ready package that compresses uploaded images using **Intervention Image** and **Spatie Image Optimizer**, with automatic fallback between `imagick` and `gd`.
+Kompressor is a Laravel-ready package that compresses uploaded images using **Intervention Image** and **Spatie Image Optimizer**, with automatic fallback between `imagick` and `gd`. The system will prefer `imagic`. If it is not installed, the system will attempt to install it. If installation fails, it will fallback to `gd`. 
 
 It provides an easy, fluent API:
 
@@ -44,7 +44,7 @@ Kompressor depends on these packages:
 | **intervention/image**     | Image manipulation (GD/Imagick) |
 | **spatie/image-optimizer** | Lossless optimization           |
 
-If they are not installed automatically, run:
+These will be installed automatically. If they are not, run:
 
 ```bash
 composer require intervention/image spatie/image-optimizer
@@ -122,12 +122,13 @@ public function store(Request $request)
     $compressed = Kompressor::compress($request->file('image'));
 
     // Example return:
-    // [
-    //     "original" => "original-images/abc123.jpg",
-    //     "compressed" => "compressed-images/compressed_abc123.jpg",
-    //     "final_size_kb" => 152,
-    //     "driver_used" => "imagick"
-    // ]
+    [
+        "original" => "original-images/abc123.jpg",
+        "compressed" => "compressed-images/compressed_abc123.jpg",
+        "final_size_kb" => 152,
+        "driver_used" => "imagick",
+        "compression_time_seconds" => $elapsed
+    ]
 
     $path = $compressed['compressed'];
 
@@ -146,7 +147,8 @@ Kompressor returns an array:
     'original'       => 'original-images/filename.jpg',
     'compressed'     => 'compressed-images/compressed_filename.jpg',
     'final_size_kb'  => 120.45,
-    'driver_used'    => 'imagick'
+    'driver_used'    => 'imagick',
+    'compression_time_seconds' => $elapsed
 ]
 ```
 
